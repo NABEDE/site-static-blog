@@ -1,0 +1,334 @@
+<html><head><base href="https://codekids.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeKids - Apprends à programmer en t'amusant !</title>
+<style>
+  :root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2196F3;
+    --accent-color: #FFC107;
+    --text-color: #333333;
+    --background-color: #F5F5F5;
+  }
+  
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  .header {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .language-selection {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .language-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .language-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .language-button.html { background-color: #E44D26; color: white; }
+  .language-button.css { background-color: #264DE4; color: white; }
+  .language-button.javascript { background-color: #F0DB4F; color: black; }
+  .language-button.python { background-color: #306998; color: white; }
+  .language-button.r { background-color: #276DC3; color: white; }
+  
+  .game-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  .code-area, .output-area {
+    padding: 1rem;
+  }
+  
+  .code-area {
+    background-color: #272822;
+    color: #F8F8F2;
+    font-family: 'Courier New', monospace;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  #code-input {
+    width: 100%;
+    height: 200px;
+    background-color: transparent;
+    border: none;
+    color: #F8F8F2;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  
+  .run-button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    margin-top: 1rem;
+  }
+  
+  .run-button:hover {
+    background-color: #1976D2;
+  }
+  
+  .output-area {
+    background-color: #F8F8F8;
+    min-height: 100px;
+    border-top: 2px solid #DDD;
+  }
+  
+  .lesson-container {
+    padding: 1rem;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border-radius: 0 0 10px 10px;
+  }
+  
+  .lesson-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .lesson-content {
+    font-size: 1rem;
+  }
+  
+  .score-container {
+    text-align: right;
+    padding: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .next-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 5px;
+    margin-top: 1rem;
+  }
+  
+  .next-button:hover {
+    background-color: #45a049;
+  }
+  
+  .success-message {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    CodeKids - Apprends à programmer en t'amusant !
+  </header>
+  
+  <div class="language-selection">
+    <button class="language-button html" onclick="selectLanguage('html')">HTML</button>
+    <button class="language-button css" onclick="selectLanguage('css')">CSS</button>
+    <button class="language-button javascript" onclick="selectLanguage('javascript')">JavaScript</button>
+    <button class="language-button python" onclick="selectLanguage('python')">Python</button>
+    <button class="language-button r" onclick="selectLanguage('r')">R</button>
+  </div>
+  
+  <div class="game-container">
+    <div class="score-container">
+      Score: <span id="score">0</span>
+    </div>
+    <div class="code-area">
+      <textarea id="code-input" placeholder="Écris ton code ici..."></textarea>
+      <button class="run-button" onclick="runCode()">Exécuter le code</button>
+    </div>
+    <div class="output-area" id="output">
+      <!-- Le résultat du code s'affichera ici -->
+    </div>
+    <div class="lesson-container">
+      <h2 class="lesson-title" id="lesson-title"></h2>
+      <p class="lesson-content" id="lesson-content"></p>
+    </div>
+    <button class="next-button" onclick="nextExercise()" id="next-button" style="display: none;">Exercice suivant</button>
+  </div>
+
+  <script>
+    let currentExercise = 0;
+    let score = 0;
+    let currentLanguage = '';
+    
+    const exercises = {
+      html: [
+        {
+          title: "Exercice 1: Créer un titre",
+          content: "Crée un titre de niveau 1 (h1) avec le texte 'Bienvenue sur mon site'.",
+          expectedOutput: "<h1>Bienvenue sur mon site</h1>",
+          hint: "Utilise la balise &lt;h1&gt; pour créer un titre de niveau 1."
+        },
+        {
+          title: "Exercice 2: Ajouter un paragraphe",
+          content: "Ajoute un paragraphe avec le texte 'Ceci est mon premier site web'.",
+          expectedOutput: "<p>Ceci est mon premier site web</p>",
+          hint: "Utilise la balise &lt;p&gt; pour créer un paragraphe."
+        }
+      ],
+      css: [
+        {
+          title: "Exercice 1: Changer la couleur du texte",
+          content: "Crée une règle CSS pour changer la couleur du texte en bleu pour tous les paragraphes.",
+          expectedOutput: "p {\n  color: blue;\n}",
+          hint: "Utilise le sélecteur 'p' et la propriété 'color'."
+        },
+        {
+          title: "Exercice 2: Ajouter une bordure",
+          content: "Ajoute une bordure noire de 1px autour de tous les éléments avec la classe 'box'.",
+          expectedOutput: ".box {\n  border: 1px solid black;\n}",
+          hint: "Utilise le sélecteur de classe '.' et la propriété 'border'."
+        }
+      ],
+      javascript: [
+        {
+          title: "Exercice 1: Afficher un message",
+          content: "Utilise console.log() pour afficher 'Bonjour, monde !'.",
+          expectedOutput: "Bonjour, monde !",
+          hint: "N'oublie pas les guillemets autour du texte !"
+        },
+        {
+          title: "Exercice 2: Additionner deux nombres",
+          content: "Crée deux variables, 'a' et 'b', avec les valeurs 5 et 3. Affiche leur somme avec console.log().",
+          expectedOutput: "8",
+          hint: "Utilise l'opérateur + pour additionner les variables."
+        }
+      ],
+      python: [
+        {
+          title: "Exercice 1: Afficher un message",
+          content: "Utilise print() pour afficher 'Bonjour, monde !'.",
+          expectedOutput: "Bonjour, monde !",
+          hint: "En Python, on utilise print() au lieu de console.log()."
+        },
+        {
+          title: "Exercice 2: Calculer la somme",
+          content: "Crée une fonction 'somme' qui prend deux paramètres et retourne leur somme.",
+          expectedOutput: "def somme(a, b):\n    return a + b\n\nprint(somme(3, 4))",
+          hint: "Utilise 'def' pour définir une fonction en Python."
+        }
+      ],
+      r: [
+        {
+          title: "Exercice 1: Afficher un message",
+          content: "Utilise print() pour afficher 'Bonjour, monde !'.",
+          expectedOutput: "print('Bonjour, monde !')",
+          hint: "En R, on utilise print() comme en Python."
+        },
+        {
+          title: "Exercice 2: Créer un vecteur",
+          content: "Crée un vecteur contenant les nombres de 1 à 5 et affiche-le.",
+          expectedOutput: "x <- c(1, 2, 3, 4, 5)\nprint(x)",
+          hint: "Utilise la fonction c() pour créer un vecteur en R."
+        }
+      ]
+    };
+
+    function selectLanguage(language) {
+      currentLanguage = language;
+      currentExercise = 0;
+      score = 0;
+      document.getElementById('score').textContent = score;
+      loadExercise(currentExercise);
+    }
+
+    function loadExercise(index) {
+      if (!currentLanguage) {
+        alert("Veuillez sélectionner un langage de programmation !");
+        return;
+      }
+      const exercise = exercises[currentLanguage][index];
+      document.getElementById('lesson-title').textContent = exercise.title;
+      document.getElementById('lesson-content').innerHTML = exercise.content;
+      document.getElementById('code-input').value = '';
+      document.getElementById('output').innerHTML = '';
+      document.getElementById('next-button').style.display = 'none';
+    }
+
+    function runCode() {
+      if (!currentLanguage) {
+        alert("Veuillez sélectionner un langage de programmation !");
+        return;
+      }
+      const code = document.getElementById('code-input').value;
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+      
+      const exercise = exercises[currentLanguage][currentExercise];
+      
+      if (code.trim() === exercise.expectedOutput.trim()) {
+        output.innerHTML = '<span class="success-message">Bravo ! Tu as réussi l\'exercice !</span>';
+        score += 10;
+        document.getElementById('score').textContent = score;
+        document.getElementById('next-button').style.display = 'inline-block';
+      } else {
+        output.innerHTML = '<span class="error-message">Pas tout à fait... Essaie encore !</span>';
+        output.innerHTML += '<br><span class="hint">Indice : ' + exercise.hint + '</span>';
+      }
+    }
+
+    function nextExercise() {
+      currentExercise++;
+      if (currentExercise < exercises[currentLanguage].length) {
+        loadExercise(currentExercise);
+      } else {
+        document.getElementById('lesson-title').textContent = "Félicitations !";
+        document.getElementById('lesson-content').innerHTML = "Tu as terminé tous les exercices de " + currentLanguage.toUpperCase() + " ! Ton score final est de " + score + " points.";
+        document.getElementById('code-input').style.display = 'none';
+        document.getElementById('run-button').style.display = 'none';
+        document.getElementById('next-button').style.display = 'none';
+      }
+    }
+
+    // Animation du titre
+    const header = document.querySelector('.header');
+    let hue = 0;
+    setInterval(() => {
+      hue = (hue + 1) % 360;
+      header.style.backgroundColor = `hsl(${hue}, 70%, 50%)`;
+    }, 100);
+  </script>
+</body></html>
